@@ -30,19 +30,19 @@ namespace TamAnhHRM
                 return;
             }
 
-            bool success = tryToLogin();
-            MessageBox.Show(success ? "Đăng nhập thành công với tài khoản " + email
+            bool success = tryToLogin(txtEmail.Text, txtPassword.Text);
+            MessageBox.Show(success ? "Đăng nhập thành công với tài khoản " + userEmail
                                         : "Sai tên tài khoản hoặc mật khẩu");
         }
 
         // PhucDV: biến để debug xem hacker đã đăng nhập thành công bởi tài khoản nào
-        private string email;
+        private string userEmail;
 
-        private bool tryToLogin()
+        public bool tryToLogin(string email, string password)
         {
             // PhucDV: Dễ dàng bị lỗi SQL Injection khi sử dụng phương pháp nỗi chuỗi
-            //string dumQuery = @"select * from tblAccount where sEmail like N'"
-            //                + txtEmail.Text + @"' and sPassword like N'" + txtPassword.Text + "'";
+            string dumQuery = @"select * from tblAccount where sEmail like N'"
+                            + email + @"' and sPassword like N'" + password + "'";
 
             string constr = @"Data Source=DESKTOP-1BI8MPQ;
                             Initial Catalog=TamAnhHRM;
@@ -52,13 +52,13 @@ namespace TamAnhHRM
             SqlCommand cmd = cnn.CreateCommand();
 
             // PhucDV: sử dụng phương pháp nối chuỗi
-            //cmd.CommandText = dumQuery;
+            cmd.CommandText = dumQuery;
 
             // PhucDV: Sử dụng procedure sẽ là cách tốt nhất để tránh lỗi SQL Injection
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "proc_tryLogin";
-            cmd.Parameters.AddWithValue("@email", txtEmail.Text);
-            cmd.Parameters.AddWithValue("@password", txtPassword.Text);
+            //cmd.CommandType = CommandType.StoredProcedure;
+            //cmd.CommandText = "proc_tryLogin";
+            //cmd.Parameters.AddWithValue("@email", email);
+            //cmd.Parameters.AddWithValue("@password", password);
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable tb = new DataTable();
@@ -66,13 +66,13 @@ namespace TamAnhHRM
             int i = ad.Fill(tb);
             foreach(DataRow row in tb.Rows)
             {
-                email = row["sEmail"].ToString();
+                userEmail = row["sEmail"].ToString();
             }
             //PhucDV: Nếu chỉ check có bản ghi thì khả năng cao hacker sẽ lấy được 1 tài khoản nào đó
-            //return i > 0;
+            return i > 0;
 
             // PhucDV: Chỉ nên đúng khi trả về 1 bản ghi duy nhất
-            return i == 1;
+            //return i == 1;
         }
     }
 }

@@ -10,6 +10,21 @@ namespace TamAnhHRM.UnitTest
     [TestFixture]
     class LoginTest
     {
+        private Login login;
+
+        [SetUp]
+        public void SetUp()
+        {
+            login = new Login();
+        }
+
+        [TestCase("admin@gmail.com", "' OR 1=1 --")]
+        [TestCase("admin@gmail.com", "' OR (1=1 and sEmail like N'admin@gmail.com') --")]
+        public void tryToLogin(string email, string password)
+        {
+            Assert.False(login.tryToLogin(email, password));
+        }
+
         [TestCase("18a10010004@students.hou.edu.vn")]
         public void validEmail(string email)
         {
@@ -17,9 +32,6 @@ namespace TamAnhHRM.UnitTest
         }
 
         [TestCase("18a10010004")]
-        [TestCase("' or 1=1 --@gmail.com")]
-        [TestCase("###@gmail.com")]
-        [TestCase("a@g")]
         public void invalidEmail(string email)
         {
             Assert.False(Utilities.isValidEmail(email));
@@ -62,5 +74,7 @@ namespace TamAnhHRM.UnitTest
         {
             Assert.False(Utilities.hasUpperChar(str));
         }
+
+        
     }
 }
